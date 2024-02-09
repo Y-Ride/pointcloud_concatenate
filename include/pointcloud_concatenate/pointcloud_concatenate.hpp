@@ -36,10 +36,11 @@ public:
   
 private:
   // Private functions
-  void subCallbackCloudIn1(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn2(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn3(sensor_msgs::PointCloud2 msg);
-  void subCallbackCloudIn4(sensor_msgs::PointCloud2 msg);
+  void subCallbackCloudFront(sensor_msgs::PointCloud2 msg);
+  void subCallbackCloudBack(sensor_msgs::PointCloud2 msg);
+  void subCallbackCloudLeft(sensor_msgs::PointCloud2 msg);
+  void subCallbackCloudRight(sensor_msgs::PointCloud2 msg);
+  void subCallbackCloudTop(sensor_msgs::PointCloud2 msg);
   void publishPointcloud(sensor_msgs::PointCloud2 cloud);
 
   // Private variables and objects
@@ -52,27 +53,31 @@ private:
   double param_hz_;
 
   // Publisher and subscribers
-  ros::Subscriber sub_cloud_in1 = nh_.subscribe("cloud_in1", 1, &PointcloudConcatenate::subCallbackCloudIn1, this);
-  ros::Subscriber sub_cloud_in2 = nh_.subscribe("cloud_in2", 1, &PointcloudConcatenate::subCallbackCloudIn2, this);
-  ros::Subscriber sub_cloud_in3 = nh_.subscribe("cloud_in3", 1, &PointcloudConcatenate::subCallbackCloudIn3, this);
-  ros::Subscriber sub_cloud_in4 = nh_.subscribe("cloud_in4", 1, &PointcloudConcatenate::subCallbackCloudIn4, this);
+  ros::Subscriber sub_cloud_front = nh_.subscribe("cloud_front", 1, &PointcloudConcatenate::subCallbackCloudFront, this);
+  ros::Subscriber sub_cloud_back = nh_.subscribe("cloud_back", 1, &PointcloudConcatenate::subCallbackCloudBack, this);
+  ros::Subscriber sub_cloud_left = nh_.subscribe("cloud_left", 1, &PointcloudConcatenate::subCallbackCloudLeft, this);
+  ros::Subscriber sub_cloud_right = nh_.subscribe("cloud_right", 1, &PointcloudConcatenate::subCallbackCloudRight, this);
+  ros::Subscriber sub_cloud_top = nh_.subscribe("cloud_top", 1, &PointcloudConcatenate::subCallbackCloudTop, this);
   ros::Publisher pub_cloud_out = nh_.advertise<sensor_msgs::PointCloud2>(node_name_ + "/cloud_out", 1);
 
   // Other
 
-  sensor_msgs::PointCloud2 cloud_in1;
-  sensor_msgs::PointCloud2 cloud_in2;
-  sensor_msgs::PointCloud2 cloud_in3;
-  sensor_msgs::PointCloud2 cloud_in4;
+  sensor_msgs::PointCloud2 cloud_front;
+  sensor_msgs::PointCloud2 cloud_back;
+  sensor_msgs::PointCloud2 cloud_left;
+  sensor_msgs::PointCloud2 cloud_right;
+  sensor_msgs::PointCloud2 cloud_top;
   sensor_msgs::PointCloud2 cloud_out;
-  bool cloud_in1_received = false;
-  bool cloud_in2_received = false;
-  bool cloud_in3_received = false;
-  bool cloud_in4_received = false;
-  bool cloud_in1_received_recent = false;
-  bool cloud_in2_received_recent = false;
-  bool cloud_in3_received_recent = false;
-  bool cloud_in4_received_recent = false;
+  bool cloud_front_received = false;
+  bool cloud_back_received = false;
+  bool cloud_left_received = false;
+  bool cloud_right_received = false;
+  bool cloud_top_received = false;
+  bool cloud_front_received_recent = false;
+  bool cloud_back_received_recent = false;
+  bool cloud_left_received_recent = false;
+  bool cloud_right_received_recent = false;
+  bool cloud_top_received_recent = false;
 
   // Initialization tf2 listener
   boost::shared_ptr<tf2_ros::Buffer> tfBuffer;

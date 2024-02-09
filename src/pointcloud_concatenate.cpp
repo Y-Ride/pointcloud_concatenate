@@ -14,10 +14,11 @@ PointcloudConcatenate::PointcloudConcatenate(ros::NodeHandle& nh, ros::NodeHandl
 
   // Initialise publishers and subscribers
   // Queues size of 1 to only keep the most recent message
-  sub_cloud_in1 = nh_.subscribe("cloud_in1", 1, &PointcloudConcatenate::subCallbackCloudIn1, this);
-  sub_cloud_in2 = nh_.subscribe("cloud_in2", 1, &PointcloudConcatenate::subCallbackCloudIn2, this);
-  sub_cloud_in3 = nh_.subscribe("cloud_in3", 1, &PointcloudConcatenate::subCallbackCloudIn3, this);
-  sub_cloud_in4 = nh_.subscribe("cloud_in4", 1, &PointcloudConcatenate::subCallbackCloudIn4, this);
+  sub_cloud_front = nh_.subscribe("cloud_front", 1, &PointcloudConcatenate::subCallbackCloudFront, this);
+  sub_cloud_back = nh_.subscribe("cloud_back", 1, &PointcloudConcatenate::subCallbackCloudBack, this);
+  sub_cloud_left = nh_.subscribe("cloud_left", 1, &PointcloudConcatenate::subCallbackCloudLeft, this);
+  sub_cloud_right = nh_.subscribe("cloud_right", 1, &PointcloudConcatenate::subCallbackCloudRight, this);
+  sub_cloud_top = nh_.subscribe("cloud_top", 1, &PointcloudConcatenate::subCallbackCloudTop, this);
   pub_cloud_out = nh_.advertise<sensor_msgs::PointCloud2>("cloud_out", 1);
 }
 
@@ -28,28 +29,34 @@ PointcloudConcatenate::~PointcloudConcatenate() {
   // delete pointer_name;
 }
 
-void PointcloudConcatenate::subCallbackCloudIn1(sensor_msgs::PointCloud2 msg) {
-  cloud_in1 = msg;
-  cloud_in1_received = true;
-  cloud_in1_received_recent = true;
+void PointcloudConcatenate::subCallbackCloudFront(sensor_msgs::PointCloud2 msg) {
+  cloud_front = msg;
+  cloud_front_received = true;
+  cloud_front_received_recent = true;
 }
 
-void PointcloudConcatenate::subCallbackCloudIn2(sensor_msgs::PointCloud2 msg) {
-  cloud_in2 = msg;
-  cloud_in2_received = true;
-  cloud_in2_received_recent = true;
+void PointcloudConcatenate::subCallbackCloudBack(sensor_msgs::PointCloud2 msg) {
+  cloud_back = msg;
+  cloud_back_received = true;
+  cloud_back_received_recent = true;
 }
 
-void PointcloudConcatenate::subCallbackCloudIn3(sensor_msgs::PointCloud2 msg) {
-  cloud_in3 = msg;
-  cloud_in3_received = true;
-  cloud_in3_received_recent = true;
+void PointcloudConcatenate::subCallbackCloudLeft(sensor_msgs::PointCloud2 msg) {
+  cloud_left = msg;
+  cloud_left_received = true;
+  cloud_left_received_recent = true;
 }
 
-void PointcloudConcatenate::subCallbackCloudIn4(sensor_msgs::PointCloud2 msg) {
-  cloud_in4 = msg;
-  cloud_in4_received = true;
-  cloud_in4_received_recent = true;
+void PointcloudConcatenate::subCallbackCloudRight(sensor_msgs::PointCloud2 msg) {
+  cloud_right = msg;
+  cloud_right_received = true;
+  cloud_right_received_recent = true;
+}
+
+void PointcloudConcatenate::subCallbackCloudTop(sensor_msgs::PointCloud2 msg) {
+  cloud_top = msg;
+  cloud_top_received = true;
+  cloud_top_received_recent = true;
 }
 
 void PointcloudConcatenate::handleParams() {
@@ -102,7 +109,7 @@ void PointcloudConcatenate::update() {
     bool success = true;
 
     // Sleep if no pointclouds have been received yet
-    if ((!cloud_in1_received) && (!cloud_in2_received) && (!cloud_in3_received) && (!cloud_in4_received)) {
+    if ((!cloud_front_received) && (!cloud_back_received) && (!cloud_left_received) && (!cloud_right_received) && (!cloud_top_received)) {
       ROS_WARN("No pointclouds received yet. Waiting 1 second...");
 
       // Set end time
@@ -116,34 +123,34 @@ void PointcloudConcatenate::update() {
 
     
     // Concatenate the first pointcloud
-    if (param_clouds_ >= 1 && success && cloud_in1_received) {
+    if (param_clouds_ >= 1 && success && cloud_front_received) {
       // Warn if cloud was not received since last update
-      if (!cloud_in1_received_recent) {
-        ROS_WARN("Cloud 1 was not received since last update, reusing last received message...");
+      if (!cloud_front_received_recent) {
+        ROS_WARN("Cloud FRONT was not received since last update, reusing last received message...");
       }
-      cloud_in1_received_recent = false;
+      cloud_front_received_recent = false;
 
       // Transform pointcloud to the target frame
       // Here we just assign the pointcloud directly to the output to ensure the secondary
       // data is inherited correctly.
-      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_in1, cloud_out, *tfBuffer);
+      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_front, cloud_out, *tfBuffer);
       if (!success) {
-        ROS_WARN("Transforming cloud 1 from %s to %s failed!", cloud_in1.header.frame_id.c_str(), param_frame_target_.c_str());
+        ROS_WARN("Transforming cloud FRONT from %s to %s failed!", cloud_front.header.frame_id.c_str(), param_frame_target_.c_str());
       }
     }
 
     // Concatenate the second pointcloud
-    if (param_clouds_ >= 2 && success && cloud_in2_received) {
+    if (param_clouds_ >= 2 && success && cloud_back_received) {
       // Warn if cloud was not received since last update
-      if (!cloud_in2_received_recent) {
-        ROS_WARN("Cloud 2 was not received since last update, reusing last received message...");
+      if (!cloud_back_received_recent) {
+        ROS_WARN("Cloud BACK was not received since last update, reusing last received message...");
       }
-      cloud_in2_received_recent = false;
+      cloud_back_received_recent = false;
 
       // Transform pointcloud to the target frame
-      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_in2, cloud_to_concat, *tfBuffer);
+      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_back, cloud_to_concat, *tfBuffer);
       if (!success) {
-        ROS_WARN("Transforming cloud 2 from %s to %s failed!", cloud_in2.header.frame_id.c_str(), param_frame_target_.c_str());
+        ROS_WARN("Transforming cloud BACK from %s to %s failed!", cloud_back.header.frame_id.c_str(), param_frame_target_.c_str());
       }
       
       // Concatenate the pointcloud
@@ -153,17 +160,17 @@ void PointcloudConcatenate::update() {
     }
 
     // Concatenate the third pointcloud
-    if (param_clouds_ >= 3 && success && cloud_in3_received) {
+    if (param_clouds_ >= 3 && success && cloud_left_received) {
       // Warn if cloud was not received since last update
-      if (!cloud_in3_received_recent) {
-        ROS_WARN("Cloud 3 was not received since last update, reusing last received message...");
+      if (!cloud_left_received_recent) {
+        ROS_WARN("Cloud LEFT was not received since last update, reusing last received message...");
       }
-      cloud_in3_received_recent = false;
+      cloud_left_received_recent = false;
 
       // Transform pointcloud to the target frame
-      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_in3, cloud_to_concat, *tfBuffer);
+      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_left, cloud_to_concat, *tfBuffer);
       if (!success) {
-        ROS_WARN("Transforming cloud 3 from %s to %s failed!", cloud_in3.header.frame_id.c_str(), param_frame_target_.c_str());
+        ROS_WARN("Transforming cloud LEFT from %s to %s failed!", cloud_left.header.frame_id.c_str(), param_frame_target_.c_str());
       }
 
       // Concatenate the pointcloud
@@ -173,17 +180,37 @@ void PointcloudConcatenate::update() {
     }
 
     // Concatenate the fourth pointcloud
-    if (param_clouds_ >= 4 && success && cloud_in4_received) {
+    if (param_clouds_ >= 4 && success && cloud_right_received) {
       // Warn if cloud was not received since last update
-      if (!cloud_in4_received_recent) {
-        ROS_WARN("Cloud 4 was not received since last update, reusing last received message...");
+      if (!cloud_right_received_recent) {
+        ROS_WARN("Cloud RIGHT was not received since last update, reusing last received message...");
       }
-      cloud_in4_received_recent = false;
+      cloud_right_received_recent = false;
 
       // Transform pointcloud to the target frame
-      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_in4, cloud_to_concat, *tfBuffer);
+      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_right, cloud_to_concat, *tfBuffer);
       if (!success) {
-        ROS_WARN("Transforming cloud 4 from %s to %s failed!", cloud_in4.header.frame_id.c_str(), param_frame_target_.c_str());
+        ROS_WARN("Transforming cloud RIGHT from %s to %s failed!", cloud_right.header.frame_id.c_str(), param_frame_target_.c_str());
+      }
+
+      // Concatenate the pointcloud
+      if (success) {
+        pcl::concatenatePointCloud(cloud_out, cloud_to_concat, cloud_out);
+      }
+    }
+
+    // Concatenate the fifth pointcloud
+    if (param_clouds_ >= 5 && success && cloud_top_received) {
+      // Warn if cloud was not received since last update
+      if (!cloud_top_received_recent) {
+        ROS_WARN("Cloud TOP was not received since last update, reusing last received message...");
+      }
+      cloud_top_received_recent = false;
+
+      // Transform pointcloud to the target frame
+      success = pcl_ros::transformPointCloud(param_frame_target_, cloud_top, cloud_to_concat, *tfBuffer);
+      if (!success) {
+        ROS_WARN("Transforming cloud TOP from %s to %s failed!", cloud_top.header.frame_id.c_str(), param_frame_target_.c_str());
       }
 
       // Concatenate the pointcloud
