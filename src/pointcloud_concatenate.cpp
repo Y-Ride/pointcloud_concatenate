@@ -1,5 +1,11 @@
 #include "pointcloud_concatenate/pointcloud_concatenate.hpp"
 
+// // Add transform parameters as class members
+// tf::Transform transform_front;
+// tf::Transform transform_back;
+// tf::Transform transform_left;
+// tf::Transform transform_right;
+
 // Constructor
 PointcloudConcatenate::PointcloudConcatenate(ros::NodeHandle &nh, ros::NodeHandle &pnh)
 {
@@ -100,6 +106,44 @@ void PointcloudConcatenate::handleParams()
     param_hz_ = 10;
     ROSPARAM_WARN(param_name, param_hz_);
   }
+
+  // Load transform paramters
+  // std::vector<double> translation, rotation;
+  // if (ros::param::get(node_name_ + "/translation_front", translation) &&
+  //     ros::param::get(node_name_ + "/rotation_front", rotation))
+  // {
+  //   transform_front = tf::Transform(
+  //     tf::Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]),
+  //     tf::Vector3(translation[0], translation[1], translation[2])
+  //   );
+  // }
+  // std::vector<double> translation, rotation;
+  // if (ros::param::get(node_name_ + "/translation_back", translation) &&
+  //     ros::param::get(node_name_ + "/rotation_back", rotation))
+  // {
+  //   transform_back = tf::Transform(
+  //     tf::Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]),
+  //     tf::Vector3(translation[0], translation[1], translation[2])
+  //   );
+  // }
+  // std::vector<double> translation, rotation;
+  // if (ros::param::get(node_name_ + "/translation_left", translation) &&
+  //     ros::param::get(node_name_ + "/rotation_left", rotation))
+  // {
+  //   transform_left = tf::Transform(
+  //     tf::Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]),
+  //     tf::Vector3(translation[0], translation[1], translation[2])
+  //   );
+  // }
+  // std::vector<double> translation, rotation;
+  // if (ros::param::get(node_name_ + "/translation_right", translation) &&
+  //     ros::param::get(node_name_ + "/rotation_right", rotation))
+  // {
+  //   transform_right = tf::Transform(
+  //     tf::Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]),
+  //     tf::Vector3(translation[0], translation[1], translation[2])
+  //   );
+  // }
 
   ROS_INFO("Parameters loaded.");
 }
