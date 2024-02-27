@@ -89,7 +89,7 @@ void PointcloudConcatenate::handleParams()
 	param_name = node_name_ + "/clouds";
 	if (!ros::param::get(param_name, param_clouds_))
 	{
-		param_clouds_ = 2;
+		param_clouds_ = 5;
 		ROSPARAM_WARN(param_name, param_clouds_);
 	}
 
@@ -259,7 +259,7 @@ void PointcloudConcatenate::update()
 			pc_back_time = cloud_back.header.stamp;
 		}
 
-		ROS_INFO("TIMES: TOP: %d.%d, LEFT: %d.%d, RIGHT: %d.%d, FRONT: %d.%d, BACK: %d.%d",
+		ROS_INFO("TIMES: TOP: %d.%09d, LEFT: %d.%09d, RIGHT: %d.%09d, FRONT: %d.%09d, BACK: %d.%09d",
 				 pc_top_time.sec, pc_top_time.nsec,
 				 pc_left_time.sec, pc_left_time.nsec,
 				 pc_right_time.sec, pc_right_time.nsec,
@@ -271,7 +271,7 @@ void PointcloudConcatenate::update()
 		uint32_t min_nsec = *std::min_element(nsec_values.begin(), nsec_values.end());
 		uint32_t max_diff_nsec = max_nsec - min_nsec;
 
-		ROS_INFO("Max difference in nsec: %d", max_diff_nsec);
+		ROS_INFO("Max difference in nsec: %09d", max_diff_nsec);
 
 		// Publish the concatenated pointcloud
 		if (success)
