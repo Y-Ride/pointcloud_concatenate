@@ -231,6 +231,12 @@ void PointcloudConcatenate::update()
 			{
 				ROS_WARN("Transforming cloud FRONT from %s to %s failed!", cloud_front.header.frame_id.c_str(), param_frame_target_.c_str());
 			}
+
+			// Concatenate the pointcloud
+			if (success)
+			{
+				pcl::concatenatePointCloud(cloud_out, cloud_to_concat, cloud_out);
+			}
 			pc_front_time = cloud_front.header.stamp;
 		}
 
@@ -277,6 +283,9 @@ void PointcloudConcatenate::update()
 		if (success)
 		{
 			publishPointcloud(cloud_out);
+		} else {
+			ROS_WARN("Failed to concatenate and publish pointclouds.");
+		
 		}
 	}
 }
