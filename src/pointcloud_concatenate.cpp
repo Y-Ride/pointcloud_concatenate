@@ -136,7 +136,7 @@ void PointcloudConcatenate::update()
 			return;
 		}
 
-		ros::Time pc_top_time, pc_left_time, pc_right_time, pc_front_time, pc_back_time;
+		ros::Time pc_top_time(0), pc_left_time(0), pc_right_time(0), pc_front_time(0), pc_back_time(0);
 
 		// Concatenate the first pointcloud (top)
 		if (param_clouds_ >= 1 && success && cloud_top_received)
@@ -163,6 +163,8 @@ void PointcloudConcatenate::update()
 			pc_top_time = cloud_top.header.stamp;
 		}
 
+		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
+
 		// Concatenate the second pointcloud (left)
 		if (param_clouds_ >= 2 && success && cloud_left_received)
 		{
@@ -188,6 +190,8 @@ void PointcloudConcatenate::update()
 			pc_left_time = cloud_left.header.stamp;
 		}
 
+		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
+
 		// Concatenate the third pointcloud (right)
 		if (param_clouds_ >= 3 && success && cloud_right_received)
 		{
@@ -212,6 +216,8 @@ void PointcloudConcatenate::update()
 			}
 			pc_right_time = cloud_right.header.stamp;
 		}
+
+		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
 
 		// Concatenate the fourth pointcloud (front)
 		if (param_clouds_ >= 4 && success && cloud_front_received)
@@ -239,6 +245,8 @@ void PointcloudConcatenate::update()
 			}
 			pc_front_time = cloud_front.header.stamp;
 		}
+
+		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
 
 		// Concatenate the fifth pointcloud (back)
 		if (param_clouds_ >= 5 && success && cloud_back_received)
