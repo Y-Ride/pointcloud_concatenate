@@ -111,10 +111,14 @@ double PointcloudConcatenate::getHz()
 
 void PointcloudConcatenate::update()
 {
+
+	static uint32_t counter = 0;
+
 	// Is run periodically and handles calling the different methods
 
 	if (pub_cloud_out.getNumSubscribers() > 0 && param_clouds_ >= 1)
 	{
+
 		// Initialise pointclouds
 		sensor_msgs::PointCloud2 cloud_to_concat;
 		cloud_out = cloud_to_concat; // Clear the output pointcloud
@@ -163,8 +167,6 @@ void PointcloudConcatenate::update()
 			pc_top_time = cloud_top.header.stamp;
 		}
 
-		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
-
 		// Concatenate the second pointcloud (left)
 		if (param_clouds_ >= 2 && success && cloud_left_received)
 		{
@@ -189,8 +191,6 @@ void PointcloudConcatenate::update()
 			}
 			pc_left_time = cloud_left.header.stamp;
 		}
-
-		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
 
 		// Concatenate the third pointcloud (right)
 		if (param_clouds_ >= 3 && success && cloud_right_received)
@@ -217,8 +217,6 @@ void PointcloudConcatenate::update()
 			pc_right_time = cloud_right.header.stamp;
 		}
 
-		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
-
 		// Concatenate the fourth pointcloud (front)
 		if (param_clouds_ >= 4 && success && cloud_front_received)
 		{
@@ -232,7 +230,7 @@ void PointcloudConcatenate::update()
 			// Transform pointcloud to the target frame
 			// Here we just assign the pointcloud directly to the output to ensure the secondary
 			// data is inherited correctly.
-			success = pcl_ros::transformPointCloud(param_frame_target_, cloud_front, cloud_out, *tfBuffer);
+			success = pcl_ros::transformPointCloud(param_frame_target_, cloud_front, cloud_to_concat, *tfBuffer);
 			if (!success)
 			{
 				ROS_WARN("Transforming cloud FRONT from %s to %s failed!", cloud_front.header.frame_id.c_str(), param_frame_target_.c_str());
@@ -245,8 +243,6 @@ void PointcloudConcatenate::update()
 			}
 			pc_front_time = cloud_front.header.stamp;
 		}
-
-		cloud_to_concat = sensor_msgs::PointCloud2(); // Clear the cloud_to_concat
 
 		// Concatenate the fifth pointcloud (back)
 		if (param_clouds_ >= 5 && success && cloud_back_received)
@@ -273,29 +269,34 @@ void PointcloudConcatenate::update()
 			pc_back_time = cloud_back.header.stamp;
 		}
 
-		ROS_INFO("TIMES: TOP: %d.%09d, LEFT: %d.%09d, RIGHT: %d.%09d, FRONT: %d.%09d, BACK: %d.%09d",
-				 pc_top_time.sec, pc_top_time.nsec,
-				 pc_left_time.sec, pc_left_time.nsec,
-				 pc_right_time.sec, pc_right_time.nsec,
-				 pc_front_time.sec, pc_front_time.nsec,
-				 pc_back_time.sec, pc_back_time.nsec);
+		if ((counter % 20) == 0)
+		{
+			ROS_INFO("TIMES: TOP: %d.%09d, LEFT: %d.%09d, RIGHT: %d.%09d, FRONT: %d.%09d, BACK: %d.%09d",
+					 pc_top_time.sec, pc_top_time.nsec,
+					 pc_left_time.sec, pc_left_time.nsec,
+					 pc_right_time.sec, pc_right_time.nsec,
+					 pc_front_time.sec, pc_front_time.nsec,
+					 pc_back_time.sec, pc_back_time.nsec);
 
-		std::vector<uint32_t> nsec_values = {pc_top_time.nsec, pc_left_time.nsec, pc_right_time.nsec /*, pc_front_time.nsec, pc_back_time.nsec*/};
-		uint32_t max_nsec = *std::max_element(nsec_values.begin(), nsec_values.end());
-		uint32_t min_nsec = *std::min_element(nsec_values.begin(), nsec_values.end());
-		uint32_t max_diff_nsec = max_nsec - min_nsec;
+			std::vector<uint32_t> nsec_values = {pc_top_time.nsec, pc_left_time.nsec, pc_right_time.nsec /*, pc_front_time.nsec, pc_back_time.nsec*/};
+			uint32_t max_nsec = *std::max_element(nsec_values.begin(), nsec_values.end());
+			uint32_t min_nsec = *std::min_element(nsec_values.begin(), nsec_values.end());
+			uint32_t max_diff_nsec = max_nsec - min_nsec;
 
-		ROS_INFO("Max difference in nsec: %09d", max_diff_nsec);
+			ROS_INFO("Max difference in nsec: %09d", max_diff_nsec);
+		}
 
 		// Publish the concatenated pointcloud
 		if (success)
 		{
 			publishPointcloud(cloud_out);
-		} else {
+		}
+		else
+		{
 			ROS_WARN("Failed to concatenate and publish pointclouds.");
-		
 		}
 	}
+	counter++;
 }
 
 void PointcloudConcatenate::publishPointcloud(sensor_msgs::PointCloud2 cloud)
