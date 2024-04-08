@@ -47,13 +47,15 @@ The package uses the following topics, which should be remapped to suit your imp
 
 #### Subscribers
 
-* `cloud_in1` - [`sensor_msgs/PointCloud2`]  
+* `cloud_top` - [`sensor_msgs/PointCloud2`]  
   The first pointcloud to add to the output.
-* `cloud_in2` - [`sensor_msgs/PointCloud2`]  
+* `cloud_left` - [`sensor_msgs/PointCloud2`]  
   The second pointcloud to add to the output.
-* `cloud_in3` - [`sensor_msgs/PointCloud2`]  
+* `cloud_right` - [`sensor_msgs/PointCloud2`]  
   The third pointcloud to add to the output.
-* `cloud_in4` - [`sensor_msgs/PointCloud2`]  
+* `cloud_front` - [`sensor_msgs/PointCloud2`]  
+  The fourth pointcloud to add to the output.
+* `cloud_back` - [`sensor_msgs/PointCloud2`]  
   The fourth pointcloud to add to the output.
 
 ### **ROS parameters**
